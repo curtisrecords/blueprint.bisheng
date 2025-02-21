@@ -96,7 +96,7 @@ services:
     container_name: bisheng-frontend
     image: dataelement/bisheng-frontend:v0.4.1.2
     ports:
-      - "3001:3001"
+      - "80:3001"
     environment:
       TZ: Asia/Shanghai
     volumes:

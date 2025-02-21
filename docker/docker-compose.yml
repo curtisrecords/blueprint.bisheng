@@ -10,8 +10,8 @@ services:
       MYSQL_DATABASE: bisheng
       TZ: Asia/Shanghai
     volumes:
-      - /mnt/blueprint/mysql/conf/my.cnf:/etc/mysql/my.cnf
-      - /mnt/blueprint/mysql/data:/var/lib/mysql
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/mysql/conf/my.cnf:/etc/mysql/my.cnf
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/mysql/data:/var/lib/mysql
     healthcheck:
       test: ["CMD-SHELL", "exit | mysql -u root -p$$MYSQL_ROOT_PASSWORD"]
       start_period: 30s
@@ -28,8 +28,8 @@ services:
     environment:
       TZ: Asia/Shanghai
     volumes:
-      - /mnt/blueprint/data/redis:/data
-      - /mnt/blueprint/redis/redis.conf:/etc/redis.conf
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/data/redis:/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/redis/redis.conf:/etc/redis.conf
     command: redis-server /etc/redis.conf
     healthcheck:
       test: ["CMD-SHELL", 'redis-cli ping|grep -e "PONG\|NOAUTH"']
@@ -47,8 +47,8 @@ services:
       TZ: Asia/Shanghai
       JWT_ENABLED: false
     volumes:
-      - /mnt/blueprint/office/bisheng:/var/www/onlyoffice/documentserver/sdkjs-plugins/bisheng
-      - /mnt/blueprint/office/default.json:/etc/onlyoffice/documentserver/default.json
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/office/bisheng:/var/www/onlyoffice/documentserver/sdkjs-plugins/bisheng
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/office/default.json:/etc/onlyoffice/documentserver/default.json
     command: bash -c "supervisorctl restart all"
     restart: on-failure
 
@@ -71,9 +71,9 @@ services:
       BS_MINIO_ACCESS_KEY: 'minioadmin'
       BS_MINIO_SECRET_KEY: 'minioadmin'
     volumes:
-      - /mnt/blueprint/bisheng/config/config.yaml:/app/bisheng/config.yaml
-      - /mnt/blueprint/bisheng/entrypoint.sh:/app/entrypoint.sh
-      - /mnt/blueprint/data/bisheng:/app/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/bisheng/config/config.yaml:/app/bisheng/config.yaml
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/bisheng/entrypoint.sh:/app/entrypoint.sh
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/data/bisheng:/app/data
     security_opt:
       - seccomp:unconfined
     command: sh entrypoint.sh # --workers 表示使用几个进程，提高并发度
@@ -100,8 +100,8 @@ services:
     environment:
       TZ: Asia/Shanghai
     volumes:
-      - /mnt/blueprint/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - /mnt/blueprint/nginx/conf.d:/etc/nginx/conf.d
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/nginx/conf.d:/etc/nginx/conf.d
     restart: on-failure
     depends_on:
       - backend
@@ -116,7 +116,7 @@ services:
     environment:
       TZ: Asia/Shanghai
     volumes:
-      - /mnt/blueprint/data/es:/bitnami/elasticsearch/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/data/es:/bitnami/elasticsearch/data
     restart: on-failure
 
   etcd:
@@ -129,7 +129,7 @@ services:
       ETCD_SNAPSHOT_COUNT: "50000"
       TZ: Asia/Shanghai
     volumes:
-      - /mnt/blueprint/data/milvus-etcd:/etcd
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/data/milvus-etcd:/etcd
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     restart: on-failure
     healthcheck:
@@ -149,7 +149,7 @@ services:
       - "9101:9001"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/blueprint/data/milvus-minio:/minio_data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/data/milvus-minio:/minio_data
     command: minio server /minio_data --console-address ":9001"
     restart: on-failure
     healthcheck:
@@ -169,7 +169,7 @@ services:
       MINIO_ADDRESS: minio:9000
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/blueprint/data/milvus:/var/lib/milvus
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/data/milvus:/var/lib/milvus
     restart: on-failure
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
